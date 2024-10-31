@@ -3,19 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ brand.name }} Products</title>
+    <title>Product List</title>
+    <style>
+        /* Basic styling as before */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 800px; width: 100%; padding: 20px; }
+        .search-bar, .brand-filter { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .search-bar input[type="text"], .brand-filter select { padding: 10px; font-size: 1em; width: 100%; max-width: 300px; }
+        .product-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .product-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
+        .product-card img { max-width: 100%; height: auto; margin-bottom: 10px; border-radius: 4px; }
+        .product-card h2 { font-size: 1.2em; margin: 0 0 10px; }
+        .product-card p { color: #666; font-size: 0.9em; margin: 5px 0; }
+        .pagination { display: flex; justify-content: center; margin-top: 20px; }
+        .pagination a, .pagination span { margin: 0 5px; padding: 8px 12px; text-decoration: none; background: #007bff; color: white; border-radius: 4px; }
+        .pagination span { background: #cccccc; }
+    </style>
 </head>
 <body>
-    <h1>Products for {{ brand.name }}</h1>
-    <ul>
-        {% for product in products %}
-            <li>
-                <img src="{{ product.image }}" alt="{{ product.name }}" width="100">
-                <p>{{ product.name }}</p>
-                <p>ASIN: {{ product.asin }}</p>
-                <p>SKU: {{ product.sku }}</p>
-            </li>
+<div class="container">
+    <!-- Search and Filter Section -->
+    <div class="search-bar">
+        <form method="get">
+            <input type="text" name="q" placeholder="Search by name or brand..." value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Product List -->
+    <div class="product-list">
+        {% for product in page_obj %}
+            <div class="product-card">
+                <img src="{{ product.image }}" alt="{{ product.name }}">
+                <h2>{{ product.name }}</h2>
+                <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+                <p><strong>SKU:</strong> {{ product.sku }}</p>
+                <p><strong>ASIN:</strong> {{ product.asin }}</p>
+            </div>
+        {% empty %}
+            <p>No products found.</p>
         {% endfor %}
-    </ul>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if query %}&q={{ query }}{% endif %}">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+        {% else %}
+            <span>First</span>
+            <span>Previous</span>
+        {% endif %}
+
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">Last</a>
+        {% else %}
+            <span>Next</span>
+            <span>Last</span>
+        {% endif %}
+    </div>
+</div>
 </body>
 </html>
